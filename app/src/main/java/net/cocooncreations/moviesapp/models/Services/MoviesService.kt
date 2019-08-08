@@ -1,7 +1,7 @@
 package net.cocooncreations.moviesapp.models.Services
 
 import io.reactivex.Single
-import net.cocooncreations.moviesapp.di.component.DaggerApiComponent
+import net.cocooncreations.moviesapp.MoviesApplication
 import net.cocooncreations.moviesapp.models.Movie
 import net.cocooncreations.moviesapp.models.MoviesResult
 import net.cocooncreations.moviesapp.utils.Feeds
@@ -15,7 +15,7 @@ class MoviesService{
     lateinit var api: MoviesApi
 
     init {
-        DaggerApiComponent.create().inject(this)
+        MoviesApplication.appComponent.inject(this)
     }
 
     fun getMovies(searchTxt:String):Single<MoviesResult>{

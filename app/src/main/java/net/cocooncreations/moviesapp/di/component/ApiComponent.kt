@@ -6,11 +6,11 @@ import net.cocooncreations.moviesapp.models.Services.MoviesService
 import net.cocooncreations.moviesapp.ui.modules.main.MainViewModel
 import javax.inject.Singleton
 
-@Component(modules = [ApiModule::class])
-@Singleton
-interface ApiComponent {
-
-    fun inject(service:MoviesService)
-    fun inject(viewModel:MainViewModel)
-
-}
+//@Component(modules = [ApiModule::class])
+//@Singleton
+//interface ApiComponent {
+//
+//    fun inject(service:MoviesService)
+//    fun inject(viewModel:MainViewModel)
+//
+//}

@@ -1,7 +1,9 @@
 package net.cocooncreations.moviesapp.ui.modules.main
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.util.Log
 import net.cocooncreations.moviesapp.R
 import net.cocooncreations.moviesapp.ui.base.BaseActivity
 
@@ -12,6 +14,7 @@ class MainActivity : BaseActivity<MainViewModel>() {
         setContentView(R.layout.activity_main)
         viewModel.onViewCreated()
         viewModel.refreshMovies("godfather")
+        observeViewModel()
     }
 
     /**
@@ -24,6 +27,14 @@ class MainActivity : BaseActivity<MainViewModel>() {
         return ViewModelProviders.of(this).get(MainViewModel::class.java)
     }
 
+
+    private fun observeViewModel(){
+        viewModel.movies.observe(this, Observer {
+            it?.forEach {
+                Log.d("Long Id====>",it.byLine)
+            }
+        })
+    }
 
 
 }
