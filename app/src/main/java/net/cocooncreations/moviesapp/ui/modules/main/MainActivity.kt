@@ -56,6 +56,13 @@ class MainActivity : BaseActivity<MainViewModel>() {
             isError?.let { moviesList.visibility = if (it) View.GONE else View.VISIBLE }
         })
 
+        viewModel.loadErrorMessage.observe(this, Observer {
+            it.let {
+                showAlertDialog(getString(R.string.error_occured),it!!,null)
+            }
+            viewModel.getLastlyStoredData()
+        })
+
         viewModel.loading.observe(this, Observer { isLoading ->
             isLoading?.let {
                 if (it) {

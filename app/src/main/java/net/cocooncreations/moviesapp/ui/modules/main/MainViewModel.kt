@@ -28,12 +28,18 @@ class MainViewModel : BaseViewModel() {
     val movies = MutableLiveData<List<Movie>>()
     val moviesLoadError = MutableLiveData<Boolean>()
     val loading = MutableLiveData<Boolean>()
+    val loadErrorMessage = MutableLiveData<String>()
+
 
     /**
      * Refreshes the movies or parses from the remote
      */
     fun refreshMovies(searchText: String) {
         fetchMoviesList(searchText)
+    }
+
+    fun getLastlyStoredData(){
+        getLastStoredData()
     }
 
     /**
@@ -43,21 +49,23 @@ class MainViewModel : BaseViewModel() {
     private fun fetchMoviesList(searchText: String) {
         loading.value = true
         disposable.add(moviesService.getMovies(searchText).subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeWith(object : DisposableSingleObserver<MoviesResult>() {
-                            @SuppressLint("CheckResult")
-                            override fun onSuccess(value: MoviesResult) {
-                                movies.value = value.moviesList
-                                moviesLoadError.value = false
-                                loading.value = false
-                                storeMoviesList(value.moviesList)
-                            }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<MoviesResult>() {
+                    @SuppressLint("CheckResult")
+                    override fun onSuccess(value: MoviesResult) {
+                        movies.value = value.moviesList
+                        moviesLoadError.value = false
+                        loading.value = false
+                        storeMoviesList(value.moviesList)
+                    }
 
-                            override fun onError(e: Throwable) {
-                                moviesLoadError.value = true
-                                loading.value = false
-                            }
-                        })
+                    override fun onError(e: Throwable) {
+                        moviesLoadError.value = true
+                        loading.value = false
+                        loadErrorMessage.value = e.localizedMessage
+
+                    }
+                })
         )
     }
 
@@ -66,17 +74,12 @@ class MainViewModel : BaseViewModel() {
     }
 
     override fun onViewDestroyed() {
-
-    }
-
-    override fun onCleared() {
-        super.onCleared()
         disposable.clear()
     }
 
 
     private fun storeMoviesList(list: List<Movie>) {
-        Observable.fromCallable {
+        disposable.add(Observable.fromCallable {
             with(moviesDao) {
                 moviesDao.deleteAll()
                 insertMovies(list)
@@ -84,6 +87,27 @@ class MainViewModel : BaseViewModel() {
         }.doOnError {
         }.subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
+                .subscribe())
+    }
+
+    private fun getLastStoredData() {
+        loading.value = true
+        disposable.add(Observable.fromCallable {
+            moviesDao.getAllMovies()
+        }.doOnError {
+            loadErrorMessage.value = it.localizedMessage
+            moviesLoadError.value = true
+            loading.value = false
+        }.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.newThread())
+                .subscribe {
+                    moviesLoadError.value = false
+                    movies.value = it
+                    loading.value = false
+                })
+    }
+    
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
     }
 }

@@ -7,6 +7,7 @@ import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.disposables.Disposable
 import io.reactivex.internal.schedulers.ExecutorScheduler
 import io.reactivex.plugins.RxJavaPlugins
+import net.cocooncreations.moviesapp.database.Dao.MoviesDao
 import net.cocooncreations.moviesapp.models.Movie
 import net.cocooncreations.moviesapp.models.MoviesResult
 import net.cocooncreations.moviesapp.models.Services.MoviesService
@@ -31,6 +32,9 @@ class MainViewModelTest {
 
     @Mock
     lateinit var moviesService: MoviesService
+
+    @Mock
+    lateinit var moviesDao: MoviesDao
 
     @InjectMocks
     var mainViewModel = MainViewModel()

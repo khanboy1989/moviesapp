@@ -2,4 +2,5 @@
     <string name="app_name">MoviesApp</string>
     <string name="please_wait">Please wait</string>
     <string name="ok">OK</string>
+    <string name="error_occured">Error occured</string>
 </resources>
