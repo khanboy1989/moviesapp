@@ -38,7 +38,11 @@ class MainViewModel : BaseViewModel() {
         fetchMoviesList(searchText)
     }
 
-    fun getLastlyStoredData(){
+    /**
+     * Get lastly stored data,
+     * when there is no internet get it from local database
+     */
+    fun getLastlyStoredData() {
         getLastStoredData()
     }
 
@@ -58,26 +62,33 @@ class MainViewModel : BaseViewModel() {
                         loading.value = false
                         storeMoviesList(value.moviesList)
                     }
-
                     override fun onError(e: Throwable) {
                         moviesLoadError.value = true
                         loading.value = false
                         loadErrorMessage.value = e.localizedMessage
-
                     }
-                })
-        )
+                }))
     }
 
+    /**
+     * When view is created the method of onViewCreated is getting called
+     * It injects the viewmodel so that class can use the dao and api methods
+     */
     override fun onViewCreated() {
         MoviesApplication.appComponent.inject(this)
     }
 
+    /**
+     * onViewDestroyed get notified by view and clear the disposable
+     * queue is cleared
+     */
     override fun onViewDestroyed() {
         disposable.clear()
     }
 
-
+    /**
+     * storeMovieList
+     */
     private fun storeMoviesList(list: List<Movie>) {
         disposable.add(Observable.fromCallable {
             with(moviesDao) {
@@ -105,7 +116,7 @@ class MainViewModel : BaseViewModel() {
                     loading.value = false
                 })
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         disposable.clear()
