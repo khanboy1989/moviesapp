@@ -65,8 +65,8 @@ class MainViewModelTest {
 
     @Test
     fun getMoviesSuccess(){
-        val movie1 = Movie("title","mpaa",1,"line","head line","summary short","date","update date")
-        val movie2 = Movie("title","mpaa",1,"line","head line","summary short","date","update date")
+        val movie1 = Movie(0,"title","mpaa",1,"line","head line","summary short","date","update date")
+        val movie2 = Movie(1,"title","mpaa",1,"line","head line","summary short","date","update date")
 
         val arrayList = arrayListOf<Movie>()
 
