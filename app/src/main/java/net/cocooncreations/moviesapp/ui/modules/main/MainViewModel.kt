@@ -2,10 +2,8 @@ package net.cocooncreations.moviesapp.ui.modules.main
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.MutableLiveData
-import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import net.cocooncreations.moviesapp.MoviesApplication
@@ -14,7 +12,6 @@ import net.cocooncreations.moviesapp.models.Movie
 import net.cocooncreations.moviesapp.models.MoviesResult
 import net.cocooncreations.moviesapp.models.Services.MoviesService
 import net.cocooncreations.moviesapp.ui.base.BaseViewModel
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -26,7 +23,7 @@ class MainViewModel : BaseViewModel() {
     lateinit var moviesService: MoviesService
 
     @Inject
-    lateinit var moviesDao:MoviesDao
+    lateinit var moviesDao: MoviesDao
 
     val movies = MutableLiveData<List<Movie>>()
     val moviesLoadError = MutableLiveData<Boolean>()
@@ -45,23 +42,22 @@ class MainViewModel : BaseViewModel() {
      */
     private fun fetchMoviesList(searchText: String) {
         loading.value = true
-        disposable.add(
-            moviesService.getMovies(searchText).subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<MoviesResult>() {
-                    @SuppressLint("CheckResult")
-                    override fun onSuccess(value: MoviesResult) {
-                        movies.value = value.moviesList
-                        moviesLoadError.value = false
-                        loading.value = false
-                        //storeData(value.moviesList)
-                    }
+        disposable.add(moviesService.getMovies(searchText).subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(object : DisposableSingleObserver<MoviesResult>() {
+                            @SuppressLint("CheckResult")
+                            override fun onSuccess(value: MoviesResult) {
+                                movies.value = value.moviesList
+                                moviesLoadError.value = false
+                                loading.value = false
+                                storeMoviesList(value.moviesList)
+                            }
 
-                    override fun onError(e: Throwable) {
-                        moviesLoadError.value = true
-                        loading.value = false
-                    }
-                })
+                            override fun onError(e: Throwable) {
+                                moviesLoadError.value = true
+                                loading.value = false
+                            }
+                        })
         )
     }
 
@@ -79,20 +75,15 @@ class MainViewModel : BaseViewModel() {
     }
 
 
-//    private fun storeData(list:List<Movie>){
-//        Observable.fromCallable {
-//            with(moviesDao){
-//                insertMovies(list)
-//            }
-//            moviesDao.getAllMovies()
-//        }.doOnNext {result->
-//            result.forEach {
-//                Log.d("Long Id====>", it.toString())
-//            }
-//        }.doOnError {
-//            Log.d("Long Error====>", it.toString())
-//        }.subscribeOn(Schedulers.newThread())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe()
-//    }
+    private fun storeMoviesList(list: List<Movie>) {
+        Observable.fromCallable {
+            with(moviesDao) {
+                moviesDao.deleteAll()
+                insertMovies(list)
+            }
+        }.doOnError {
+        }.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+    }
 }

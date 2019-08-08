@@ -3,18 +3,22 @@ package net.cocooncreations.moviesapp.ui.modules.main
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.view.View
+import kotlinx.android.synthetic.main.activity_main.*
 import net.cocooncreations.moviesapp.R
 import net.cocooncreations.moviesapp.ui.base.BaseActivity
 
 class MainActivity : BaseActivity<MainViewModel>() {
 
+
+    private var moviesListAdapter: MoviesListAdapter = MoviesListAdapter(mutableListOf())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        viewModel.onViewCreated()
-        viewModel.refreshMovies("godfather")
-        observeViewModel()
+        instantiateViewData()
     }
 
     /**
@@ -27,13 +31,41 @@ class MainActivity : BaseActivity<MainViewModel>() {
         return ViewModelProviders.of(this).get(MainViewModel::class.java)
     }
 
+    private fun instantiateViewData() {
+        viewModel.onViewCreated()
+        viewModel.refreshMovies("godfather")
 
-    private fun observeViewModel(){
+        moviesList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = moviesListAdapter
+        }
+
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
         viewModel.movies.observe(this, Observer {
-            it?.forEach {
-                Log.d("Long Id====>",it.byLine)
+            it.let { list ->
+                moviesList.visibility = View.VISIBLE
+                moviesListAdapter.updateMovies(list!!)
             }
         })
+
+
+        viewModel.moviesLoadError.observe(this, Observer { isError ->
+            isError?.let { moviesList.visibility = if (it) View.GONE else View.VISIBLE }
+        })
+
+        viewModel.loading.observe(this, Observer { isLoading ->
+            isLoading?.let {
+                if (it) {
+                    showProgressDialog("Please wait!")
+                } else {
+                    hideProgressDialog()
+                }
+            }
+        })
+
     }
 
 
