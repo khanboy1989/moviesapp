@@ -16,6 +16,10 @@ class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshL
 
     private var moviesListAdapter: MoviesListAdapter = MoviesListAdapter(mutableListOf())
     private var searchText:String = ""
+
+    /**
+     * onCreate
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -124,6 +128,9 @@ class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshL
         return false
     }
 
+    /**
+     * onQueryTextChange
+     */
     override fun onQueryTextChange(p0: String?): Boolean {
         return false
     }

@@ -43,7 +43,7 @@ class MainViewModel : BaseViewModel() {
      * when there is no internet get it from local database
      */
     fun getLastlyStoredData() {
-        getLastStoredData()
+        getAllMovies()
     }
 
     /**
@@ -101,20 +101,27 @@ class MainViewModel : BaseViewModel() {
                 .subscribe())
     }
 
-    private fun getLastStoredData() {
-        loading.value = true
-        disposable.add(Observable.fromCallable {
-            moviesDao.getAllMovies()
-        }.doOnError {
-            loadErrorMessage.value = it.localizedMessage
-            moviesLoadError.value = true
-            loading.value = false
-        }.observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.newThread())
-                .subscribe {
-                    moviesLoadError.value = false
-                    movies.value = it
-                    loading.value = false
-                })
+
+
+    /**
+     * returns latest stored data in case of there is no internet connection
+     * in case of there is no data, no data will be shown
+     */
+    private fun getAllMovies(){
+        disposable.add(moviesDao.getAll().subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread()).subscribeWith(object:DisposableSingleObserver<List<Movie>>(){
+            override fun onSuccess(result: List<Movie>) {
+                moviesLoadError.value = false
+                movies.value = result
+                loading.value = false
+            }
+
+            override fun onError(e: Throwable) {
+                loadErrorMessage.value = e.localizedMessage
+                moviesLoadError.value = true
+                loading.value = false
+            }
+
+        }))
     }
 
     /**

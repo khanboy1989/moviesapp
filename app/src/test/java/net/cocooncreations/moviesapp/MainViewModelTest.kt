@@ -40,6 +40,7 @@ class MainViewModelTest {
     var mainViewModel = MainViewModel()
 
     private var testSingle:Single<MoviesResult>? = null
+    private var singleTest:Single<List<Movie>>? = null
 
     @Before
     fun setup(){
@@ -67,6 +68,9 @@ class MainViewModelTest {
     }
 
 
+    /**
+     * Test when service returns the data
+     */
     @Test
     fun getMoviesSuccess(){
         val movie1 = Movie(0,"title","mpaa",1,"line","head line","summary short","date","update date")
@@ -92,7 +96,7 @@ class MainViewModelTest {
     }
 
     /**
-     * Test if service is returned an error
+     * Test error case how method of refresh behaves
      */
     @Test
     fun getMoviesFailure(){
@@ -106,6 +110,31 @@ class MainViewModelTest {
         Assert.assertEquals(null,mainViewModel.movies.value?.size)
         Assert.assertEquals(true,mainViewModel.moviesLoadError.value)
         Assert.assertEquals(false,mainViewModel.loading.value)
+    }
+
+    /**
+     * Test in case of the no data is return from local database
+     */
+    @Test
+    fun getMoviesFromLocalDatabaseSuccess(){
+
+
+        val movie = Movie(1,"title","mpaaRating",0,"line","haedLine","summary_shory","publicationDate","dateUpdate")
+
+        val list:MutableList<Movie> = mutableListOf()
+
+        list.add(movie)
+
+        singleTest = Single.just(list)
+
+        `when`(moviesDao.getAll()).thenReturn(singleTest)
+
+        mainViewModel.getLastlyStoredData()
+
+        Assert.assertEquals(1,mainViewModel.movies.value?.size)
+        Assert.assertEquals(false,mainViewModel.moviesLoadError.value)
+        Assert.assertEquals(false,mainViewModel.loading.value)
+
     }
 
 }
