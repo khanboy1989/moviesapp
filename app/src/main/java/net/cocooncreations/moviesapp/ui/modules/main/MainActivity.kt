@@ -7,16 +7,15 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
+import android.widget.SearchView
 import kotlinx.android.synthetic.main.activity_main.*
 import net.cocooncreations.moviesapp.R
 import net.cocooncreations.moviesapp.ui.base.BaseActivity
 
-class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshListener {
-
-
+class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshListener, SearchView.OnQueryTextListener {
 
     private var moviesListAdapter: MoviesListAdapter = MoviesListAdapter(mutableListOf())
-
+    private var searchText:String = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,8 +34,11 @@ class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshL
 
     private fun instantiateViewData() {
         viewModel.onViewCreated()
-        viewModel.refreshMovies("godfather")
 
+        //load lastly stored data in initial point
+        viewModel.getLastlyStoredData()
+
+        //init the RecyclerView
         moviesList.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = moviesListAdapter
@@ -44,6 +46,9 @@ class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshL
 
         //set on refresh listener
         swipeRefreshLayout.setOnRefreshListener(this)
+
+        //searchview on text change listener
+        searchView.setOnQueryTextListener(this)
 
         //observe value changes on viewModel
         observeViewModel()
@@ -98,9 +103,28 @@ class MainActivity : BaseActivity<MainViewModel>(),SwipeRefreshLayout.OnRefreshL
         })
     }
 
+    /**
+     * onRefresh triggered, this function is getting called and we can perform swipe operation here
+     */
     override fun onRefresh() {
         swipeRefreshLayout.isRefreshing = false
-        viewModel.refreshMovies("godfather")
+        viewModel.refreshMovies(searchText)
 
+    }
+
+    /**
+     * onQueryTextSubmitted make request from viewmodel to
+     * refresh the list
+     */
+    override fun onQueryTextSubmit(queryString: String?): Boolean {
+        if (!queryString.isNullOrEmpty()){
+            searchText = queryString
+            viewModel.refreshMovies(queryString)
+        }
+        return false
+    }
+
+    override fun onQueryTextChange(p0: String?): Boolean {
+        return false
     }
 }
