@@ -117,6 +117,10 @@ class MainViewModel : BaseViewModel() {
                 })
     }
 
+    /**
+     * viewModel is cleared
+     * remove clear the disposable queue
+     */
     override fun onCleared() {
         super.onCleared()
         disposable.clear()

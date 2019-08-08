@@ -3,4 +3,5 @@
     <string name="please_wait">Please wait</string>
     <string name="ok">OK</string>
     <string name="error_occured">Error occured</string>
+    <string name="no_data_to_show">There is no recent data to show. Please enable your internet connection and update.</string>
 </resources>
